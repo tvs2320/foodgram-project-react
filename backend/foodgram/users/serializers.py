@@ -17,17 +17,6 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         user.save()
         return user
 
-    # def set_password(self, validated_data):
-    #     user = CustomUser(
-    #         email=validated_data['email'],
-    #         username=validated_data['username'],
-    #         first_name=validated_data['first_name'],
-    #         last_name=validated_data['last_name'],
-    #     )
-    #     user.set_password(validated_data['password'])
-    #     user.save()
-    #     return user
-
     class Meta:
         model = CustomUser
         fields = ('email',
@@ -58,11 +47,6 @@ class CustomUserSerializer(UserSerializer):
             return True
         else:
             return False
-
-
-class PasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(max_length=150)
-    current_password = serializers.CharField(max_length=150)
 
 
 class FollowSerializer(serializers.ModelSerializer):

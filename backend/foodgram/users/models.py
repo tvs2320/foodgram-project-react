@@ -19,8 +19,8 @@ class CustomUser(AbstractUser):
     password = models.CharField(max_length=150,
                                 verbose_name='Пароль')
 
-    # USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         ordering = ('username',)

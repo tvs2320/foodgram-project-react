@@ -60,7 +60,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         """Метод отвечающий за получение множества объектов Favorite"""
         author = self.request.user
         favorite_queryset = Favorite.objects.filter(author=author)
-
         return favorite_queryset
 
     def create(self, request, *args, **kwargs):

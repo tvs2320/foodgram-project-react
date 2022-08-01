@@ -108,15 +108,15 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    'LOGIN_FIELD': 'email',
     'SET_PASSWORD_RETYPE': True,
     'PASSWORD_RESET_CONFIRM_URL': '/users/set_password',
     'SERIALIZERS': {
         'user_create': 'users.serializers.CustomUserCreateSerializer',
         'user': 'users.serializers.CustomUserSerializer',
         'current_user': 'users.serializers.CustomUserSerializer',
-        'set_password': 'djoser.serializers.SetPasswordSerializer',
     },
-    # 'LOGIN_FIELD': 'email',
+
 }
 
 # LOGGING = {

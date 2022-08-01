@@ -41,15 +41,12 @@ class TagsSerializer(serializers.ModelSerializer):
 class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
     author = CustomUserSerializer()
-    ingredients = IngredientsAmountSerializer(
-        source='ingredientsamount',
-        many=True,
-        read_only=True
-    )
+    ingredients = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipes
-        fields = ('tags',
+        fields = ('id',
+                  'tags',
                   'author',
                   'ingredients',
                   # 'is_favorite',
@@ -59,12 +56,23 @@ class RecipesSerializer(serializers.ModelSerializer):
                   'text',
                   'cooking_time')
 
+    def get_ingredients(self, obj):
+        # pdb.set_trace()
+        ingredients = IngredientsAmount.objects.filter(recipes=obj)
+        return IngredientsAmountSerializer(ingredients, many=True).data
+        # for data in ingredients:
+        #     id = data['id']
+        #     amount = data['amount']
+        #     ingredients = IngredientsAmount.objects.get(recipes=recipes, ingredients=id, amount=amount)
+        #     return ingredients
+
 
 class RecipesCreateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     ingredients = IngredientWriteSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tags.objects.all(),
-                                              many=True)
+
+    # tags = serializers.PrimaryKeyRelatedField(queryset=Tags.objects.all(),
+    #                                           many=True)
 
     def create_tags(self, tags, recipes):
         for tags in tags:
