@@ -44,7 +44,7 @@ class Recipes(models.Model):
     tags = models.ManyToManyField(Tags,
                                   related_name='recipes_tags',
                                   verbose_name='Теги')
-    name = models.CharField(max_length=200, db_index=True,
+    name = models.CharField(max_length=200, db_index=True, unique=True,
                             verbose_name='Название рецепта')
     image = models.ImageField(upload_to='recipes/', blank=True,
                               verbose_name='Загрузить фото')

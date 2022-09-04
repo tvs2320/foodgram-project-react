@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import ReadOnlyField
-from .models import Ingredients, Tags, Recipes, IngredientsAmount
+from .models import Ingredients, Tags, Recipes, IngredientsAmount, Favorite
 from django.core.validators import MinValueValidator
 from users.models import CustomUser
 import pdb
-
+from drf_extra_fields.fields import Base64ImageField
 from users.serializers import CustomUserSerializer
 
 
@@ -64,12 +64,38 @@ class RecipesSerializer(serializers.ModelSerializer):
 class RecipesCreateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     ingredients = IngredientWriteSerializer(many=True)
+    image = Base64ImageField()
+
+    def validate_cooking_time(self, data):
+        if data < 1:
+            raise serializers.ValidationError('Меньше чем за минуту ничего не '
+                                              'приготовить!!!')
+        return data
+
+    def validate_ingredients(self, attrs):
+        if len(attrs) < 1:
+            raise serializers.ValidationError('Укажите хотя бы один '
+                                              'ингредиент в рецепте')
+
+        ingr_list = []
+        for data in attrs:
+            ingr_id = data['id']
+            if ingr_id in ingr_list:
+                raise serializers.ValidationError(
+                    'Нельзя указывать 2 одинаковых ингредиента')
+            ingr_list.append(ingr_id)
+            if int(data['amount']) <= 0:
+                raise serializers.ValidationError(
+                    f'Укажите кол-во для ингредиента id={ingr_id} больше 0'
+                )
+        return attrs
 
     def create_tags(self, tags, recipes):
         for tags in tags:
             recipes.tags.add(tags)
 
     def create(self, validated_data):
+        pdb.set_trace()
         ingredients_data = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
@@ -124,5 +150,30 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
                   'cooking_time')
 
 
+class FavoriteListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipes
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class FavoriteSerializer(serializers.ModelSerializer):
-    pass
+    class Meta:
+        model = Favorite
+        fields = ('author', 'recipes')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipes = data['recipes']
+        if Favorite.objects.filter(author=request.user, recipes=recipes).exists():
+            raise serializers.ValidationError({
+                'status': 'Рецепт уже есть в избранном!'
+            })
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return FavoriteListSerializer(
+            instance.recipes, context=context).data

@@ -1,16 +1,20 @@
 import pdb
 
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 from rest_framework import viewsets, filters
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.response import Response
 
 from .models import Ingredients, Tags, Recipes, Favorite
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer, TagsSerializer,
-                          FavoriteSerializer,
-                          RecipesCreateSerializer, IngredientsAmountSerializer, RecipesSerializer)
+    # FavoriteSerializer,
+                          RecipesCreateSerializer, IngredientsAmountSerializer, RecipesSerializer,
+                          FavoriteSerializer, FavoriteListSerializer)
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -50,23 +54,23 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    @action(detail=True, methods=['post', ],
+            permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk):
+        data = {'author': request.user.id, 'recipes': pk}
+        serializer = FavoriteSerializer(
+            data=data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-class FavoriteViewSet(viewsets.ModelViewSet):
-    """Набор представлений для модели Favorite"""
-    serializer_class = FavoriteSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        """Метод отвечающий за получение множества объектов Favorite"""
-        author = self.request.user
-        favorite_queryset = Favorite.objects.filter(author=author)
-        return favorite_queryset
-
-    def create(self, request, *args, **kwargs):
-        """Метод отвечающий за создание объектов Favorite"""
-        recipes_id = self.kwargs.get("recipes_id")
-        author = self.request.user
-        if not Favorite.objects.filter(favorite=recipes_id, author=author).exists():
-            Favorite.objects.filter(favorite=recipes_id, author=author).create()
-        else:
-            Favorite.objects.filter(favorite=recipes_id, author=author).delete()
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        author = request.user
+        recipes = get_object_or_404(Recipes, id=pk)
+        favorite = get_object_or_404(
+            Favorite, author=author, recipes=recipes
+        )
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

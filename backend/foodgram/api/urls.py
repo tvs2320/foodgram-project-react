@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import (IngredientsViewSet, TagsViewSet, RecipesViewSet, FavoriteViewSet)
+from .views import (IngredientsViewSet, TagsViewSet, RecipesViewSet)
 
 app_name = 'api'
 
@@ -21,11 +21,7 @@ router.register(
     RecipesViewSet,
     basename='recipes'
 )
-router.register(
-    r'recipes/(?P<recipes_id>\d+)/favorite',
-    FavoriteViewSet,
-    basename='favorite',
-)
+
 # router_v1.register(
 #     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
 #     CommentViewSet,
