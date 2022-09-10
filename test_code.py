@@ -115,3 +115,25 @@ validated_data = {'ingredients': [OrderedDict([('ingredients', {'id': 1522}), ('
 
 
 [OrderedDict([('ingredients', {'id': 1522}), ('amount', 100)]), OrderedDict([('ingredients', {'id': 5}), ('amount', 33)])]
+
+
+"""пример запроса на создание рецепта, аргументы"""
+self = RecipesCreateSerializer(context={'request': <rest_framework.request.Request: POST '/api/recipes/'>, 'format': None, 'view': <api.views.RecipesViewSet object>}, data={'ingredients': [{'id': 77, 'amount': 3}, {'id': 33, 'amount': 3}], 'name': 'винегрет2', 'text': 'легкий питательный', 'cooking_time': 33, 'tags': [1, 1], 'image': 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjeGip9R8ABYcCRM7k3YwAAAAASUVORK5CYII='}):
+    author = CustomUserSerializer(read_only=True):
+        email = EmailField(label='Адрес электронной почты', max_length=254, validators=[<UniqueValidator(queryset=CustomUser.objects.all())>])
+        id = IntegerField(label='ID', read_only=True)
+        username = CharField(label='Имя пользователя', max_length=150, validators=[<function username_validate>, <UniqueValidator(queryset=CustomUser.objects.all())>])
+        first_name = CharField(label='Имя', max_length=150)
+        last_name = CharField(label='Фамилия', max_length=150)
+        is_subscribed = SerializerMethodField()
+    ingredients = IngredientWriteSerializer(many=True):
+        id = IntegerField()
+        amount = IntegerField()
+    tags = PrimaryKeyRelatedField(allow_empty=False, label='Теги', many=True, queryset=Tags.objects.all())
+    image = Base64ImageField()
+    name = CharField(label='Название рецепта', max_length=200, validators=[<UniqueValidator(queryset=Recipes.objects.all())>])
+    text = CharField(label='Описание', style={'base_template': 'textarea.html'})
+    cooking_time = IntegerField(label='Время приготовления', min_value=1)
+validated_data = {'ingredients': [OrderedDict([('id', 77), ('amount', 3)]), OrderedDict([('id', 33), ('amount', 3)])], 'tags': [<Tags: Завтрак>, <Tags: Завтрак>], 'image': <ContentFile: Raw content>, 'name': 'винегрет2', 'text': 'легкий питательный', 'cooking_time': 33, 'author': <CustomUser: test3>}
+
+http://localhost/api/recipes/{id}/shopping_cart/
