@@ -42,7 +42,7 @@ class Follow(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name='following',
-        verbose_name='Автор'
+        verbose_name='Автор публикаций'
     )
 
     def __str__(self):

@@ -4,7 +4,6 @@ from rest_framework import serializers
 from .models import (Ingredients, Tags, Recipes, IngredientsAmount, Favorite,
                      Basket)
 
-import pdb
 from drf_extra_fields.fields import Base64ImageField
 from users.serializers import CustomUserSerializer
 

@@ -1,5 +1,3 @@
-import pdb
-
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,9 +11,9 @@ from rest_framework.response import Response
 from django.db.models import Sum
 
 from .models import Ingredients, Tags, Recipes, Favorite, Basket, IngredientsAmount
+from .pagination import FoodgramPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer, TagsSerializer,
-    # FavoriteSerializer,
                           RecipesCreateSerializer, IngredientsAmountSerializer, RecipesSerializer,
                           FavoriteSerializer, CutRecipesSerializer, BasketSerializer)
 
@@ -44,7 +42,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     """Набор представлений для модели Recipes"""
     queryset = Recipes.objects.all()
     permission_classes = []
-    pagination_class = PageNumberPagination
+    pagination_class = FoodgramPagination
     filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
@@ -105,13 +103,17 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
+        """Метод отвечающий за выгрузку файла со списком ингридиентов
+        из рецептов, сохраненных в список покупок"""
         basket = IngredientsAmount.objects.filter(
             recipes__basket__author=request.user)
         ingredients_list = basket.values('ingredients__name',
                                          'ingredients__measurement_unit'
                                          ).annotate(total=Sum('amount'))
         file = ''
+
         shopping_cart = list()
+
         for ingredient in ingredients_list:
             if ingredient["ingredients__name"] not in shopping_cart:
                 value = (f'{ingredient["ingredients__name"]} - '
