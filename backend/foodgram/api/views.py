@@ -10,6 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.response import Response
 from django.db.models import Sum
 
+from .filters import IngredientsFilter, RecipesFilter
 from .models import Ingredients, Tags, Recipes, Favorite, Basket, IngredientsAmount
 from .pagination import FoodgramPagination
 from .permissions import IsAuthorOrReadOnly
@@ -22,9 +23,9 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     """Набор представлений для модели Ingredients"""
     serializer_class = IngredientsSerializer
     queryset = Ingredients.objects.all()
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    search_fields = ('=name',)
-    permission_classes = []
+    filter_backends = [IngredientsFilter]
+    search_fields = ('^name',)
+    permission_classes = [AllowAny, ]
     pagination_class = None
 
 
@@ -34,16 +35,17 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('=name',)
-    permission_classes = []
+    permission_classes = [AllowAny, ]
     pagination_class = None
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
     """Набор представлений для модели Recipes"""
     queryset = Recipes.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthorOrReadOnly, ]
     pagination_class = FoodgramPagination
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RecipesFilter
 
     def get_serializer_class(self):
         """Метод отвечающий за выбор selializer в зависимости от метода"""
