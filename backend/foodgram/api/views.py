@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework import viewsets, filters
 
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Sum
 
@@ -14,8 +14,8 @@ from .models import Ingredients, Tags, Recipes, Favorite, Basket, IngredientsAmo
 from .pagination import FoodgramPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer, TagsSerializer,
-                          RecipesCreateSerializer, IngredientsAmountSerializer, RecipesSerializer,
-                          FavoriteSerializer, CutRecipesSerializer, BasketSerializer)
+                          RecipesCreateSerializer, RecipesSerializer,
+                          FavoriteSerializer, BasketSerializer)
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -90,6 +90,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         """Метод отвечающий за удаление рецепта из списка покупок"""
