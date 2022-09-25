@@ -1,45 +1,54 @@
-from urllib import request
-import pdb
-from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import render, get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, filters, status
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
-                                        IsAuthenticated, AllowAny)
+
+from django.shortcuts import get_object_or_404
+
+
+from rest_framework import status
+
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from djoser.views import UserViewSet
-from .models import CustomUser
-from .permissions import IsAuthorOrReadOnly
-from .serializers import CustomUserSerializer, PasswordSerializer
+
+from rest_framework.views import APIView
+from .models import CustomUser, Follow
+
+from .serializers import FollowListSerializer, FollowSerializer
+from api.pagination import FoodgramPagination
 
 
-# class CustomUserViewSet(viewsets.ModelViewSet):
-#     """Вьюсет данных пользователей.
-#     Полный доступ к данным пользователей у администратора,
-#     чтение/изменение данных своей учетной записи юзером"""
-#     queryset = CustomUser.objects.all()
-#     serializer_class = CustomUserSerializer
-#     permission_classes = (AllowAny,)
-#     pagination_class = PageNumberPagination
-#     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-#     search_fields = ('username',)
-#     ordering_fields = 'username'
-#
-#     @action(methods=['get', ], detail=False,
-#             permission_classes=(IsAuthenticated,))
-#     def me(self, request):
-#         """Метод "me" отвечает за чтение пользователем
-#         собственных учетных данных"""
-#         me_user = self.request.user
-#         serializer = self.get_serializer(me_user)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#
+class FollowListAPIView(ListAPIView):
+    """Вывод подписок пользователя"""
+    pagination_class = FoodgramPagination
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = CustomUser.objects.filter(following__follower=request.user)
+        page = self.paginate_queryset(queryset)
+        serializer = FollowListSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
+class FollowApiView(APIView):
+    """Создание и удаление подписок"""
+    permission_classes = [IsAuthenticated]
 
-class FollowViewSet(viewsets.ModelViewSet):
-    """Набор представлений для модели Follow"""
+    def post(self, request, id):
+        """Метод, отвечающий за создание подписок"""
+        data = {'follower': request.user.id, 'author': id}
+        serializer = FollowSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, id):
+        """Метод, отвечающий за удаление подписок"""
+        follower = request.user
+        author = get_object_or_404(CustomUser, id=id)
+        follow = get_object_or_404(
+            Follow, follower=follower, author=author
+        )
+        follow.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

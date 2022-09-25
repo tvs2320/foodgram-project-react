@@ -1,9 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.serializers import ReadOnlyField
 from .models import Ingredients, Tags, Recipes, IngredientsAmount, Favorite
-from django.core.validators import MinValueValidator
-from users.models import CustomUser
+
 import pdb
 from drf_extra_fields.fields import Base64ImageField
 from users.serializers import CustomUserSerializer
