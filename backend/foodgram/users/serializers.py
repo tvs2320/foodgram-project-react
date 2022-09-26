@@ -1,9 +1,9 @@
+from api.models import Recipes
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-from djoser.serializers import UserSerializer, UserCreateSerializer
-from .models import CustomUser, Follow
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.models import Recipes
+from .models import CustomUser, Follow
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
