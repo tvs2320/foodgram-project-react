@@ -1,21 +1,20 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import status
-from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Sum
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework import viewsets, filters
-
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Sum
 
 from .filters import IngredientsFilter, RecipesFilter
-from .models import Ingredients, Tags, Recipes, Favorite, Basket, IngredientsAmount
+from .models import (Basket, Favorite, Ingredients, IngredientsAmount, Recipes,
+                     Tags)
 from .pagination import FoodgramPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (IngredientsSerializer, TagsSerializer,
-                          RecipesCreateSerializer, RecipesSerializer,
-                          FavoriteSerializer, BasketSerializer)
+from .serializers import (BasketSerializer, FavoriteSerializer,
+                          IngredientsSerializer, RecipesCreateSerializer,
+                          RecipesSerializer, TagsSerializer)
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
