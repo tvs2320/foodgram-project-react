@@ -105,7 +105,8 @@ class FollowListSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return Follow.objects.filter(follower=request.user, author=obj).exists()
+        return Follow.objects.filter(
+            follower=request.user, author=obj).exists()
 
     def get_recipes(self, obj):
         """Метод получения рецептов из подписок пользователя"""

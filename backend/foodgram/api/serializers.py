@@ -179,7 +179,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
         if not request or request.user.is_anonymous:
             return False
         recipes = data['recipes']
-        if Favorite.objects.filter(author=request.user, recipes=recipes).exists():
+        if Favorite.objects.filter(
+                author=request.user, recipes=recipes).exists():
             raise serializers.ValidationError({
                 'status': 'Рецепт уже есть в избранном!'
             })
@@ -196,6 +197,7 @@ class BasketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Basket
         fields = ('author', 'recipes')
+
     def validate(self, data):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
@@ -208,6 +210,7 @@ class BasketSerializer(serializers.ModelSerializer):
                 'status': 'Рецепт уже есть в списке покупок!'
             })
         return data
+
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
