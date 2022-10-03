@@ -30,13 +30,13 @@ git clone git@github.com:tvs2320/foodgram-project-react.git
 ```
 
 ## Установка на удаленном сервере (Ubuntu):
-##### Шаг 1. Выполните вход на свой удаленный сервер
+##### № 1. Выполните вход на свой удаленный сервер
 Прежде, чем приступать к работе, необходимо выполнить вход на свой удаленный сервер:
 ```bash
 ssh <USERNAME>@<IP_ADDRESS>
 ```
 
-##### Шаг 2. Установите docker и docker-compose на удаленный сервер:
+##### № 2. Установите docker и docker-compose на удаленный сервер:
 Введите команды:
 ```bash
 sudo apt install docker.io 
@@ -47,10 +47,10 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-##### Шаг 3. Локально отредактируйте файл nginx.conf
+##### № 3. Локально отредактируйте файл nginx.conf
 Локально отредактируйте файл `infra/nginx.conf` и в строке `server_name` впишите свой IP.
 
-##### Шаг 4. Скопируйте подготовленные файлы из каталога infra:
+##### № 4. Скопируйте подготовленные файлы из каталога infra:
 Скопируйте подготовленные файлы `infra/docker-compose.yml` и `infra/nginx.conf` из вашего проекта на сервер в `home/<ваш_username>/docker-compose.yml` и `home/<ваш_username>/nginx.conf` соответственно.
 Введите команду из корневой папки проекта:
 ```bash
@@ -58,7 +58,7 @@ scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yml
 scp nginx.conf <username>@<host>:/home/<username>/nginx.conf
 ```
 
-##### Шаг 5. Cоздайте .env файл:
+##### № 5. Cоздайте .env файл:
 На сервере создайте файл `nano .env` и заполните переменные окружения (или создайте этот файл локально и скопируйте файл по аналогии с предыдущим шагом):
 ```bash
 SECRET_KEY=<SECRET_KEY>
@@ -71,7 +71,7 @@ DB_HOST=db
 DB_PORT=5432
 ```
 
-##### Шаг 6. Добавьте Secrets:
+##### № 6. Добавьте Secrets:
 Для работы с Workflow добавьте в Secrets GitHub переменные окружения для работы:
 ```bash
 DB_ENGINE=django.db.backends.postgresql
@@ -93,7 +93,7 @@ TELEGRAM_TO=<ID своего телеграм-аккаунта>
 TELEGRAM_TOKEN=<токен вашего бота>
 ```
 
-##### Шаг 7. После успешной загрузки:
+##### № 7. После успешной загрузки:
 Зайдите на боевой сервер и выполните команды:
 
 ###### Выполнить команду docker-compose на удаленном сервере:
@@ -106,19 +106,18 @@ sudo docker-compose up -d --build
 sudo docker-compose exec backend python manage.py makemigrations --noinput
 sudo docker-compose exec backend python manage.py migrate --noinput
 ```
+###### Создать суперпользователя Django:
+```bash
+sudo docker-compose exec backend python manage.py createsuperuser
+```
 ###### Подгрузить статику
 ```bash
 sudo docker-compose exec backend python manage.py collectstatic --noinput 
 ```
 ###### Заполнить базу данных:
 ```bash
-sudo docker-compose exec backend python manage.py loaddata data/ingredients.json
-```
-###### Создать суперпользователя Django:
-```bash
-sudo docker-compose exec backend python manage.py createsuperuser
+sudo docker-compose exec backend python manage.py loaddata fixtures/ingredients.json
 ```
 
-##### Шаг 8. Проект запущен:
+##### № 8. Проект запущен:
 Проект будет доступен по вашему IP-адресу.
-
