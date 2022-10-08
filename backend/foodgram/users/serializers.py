@@ -1,4 +1,4 @@
-from api.models import Recipes
+from recipes.models import Recipes
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -50,10 +50,7 @@ class CustomUserSerializer(UserSerializer):
          пользователя из запроса"""
         follower = self.context['request'].user
         author = CustomUser.objects.get(id=obj.id)
-        if Follow.objects.filter(follower=follower, author=author).exists():
-            return True
-        else:
-            return False
+        return Follow.objects.filter(follower=follower, author=author).exists()
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -124,4 +121,4 @@ class FollowListSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         """Метод получения количества рецептов в подписках"""
-        return Recipes.objects.filter(author=obj).count()
+        return obj.recipes.count()

@@ -1,10 +1,9 @@
-from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from users.serializers import CustomUserSerializer
 
-from .models import (Basket, Favorite, Ingredients, IngredientsAmount, Recipes,
-                     Tags)
+from recipes.models import (Basket, Favorite, Ingredients, IngredientsAmount,
+                            Recipes, Tags)
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -80,49 +79,44 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientWriteSerializer(many=True)
     image = Base64ImageField()
 
-    def validate_cooking_time(self, data):
-        if data < 1:
-            raise serializers.ValidationError('Меньше чем за минуту ничего не '
-                                              'приготовить!!!')
+    def validate(self, data):
+        # Проверка, что время готовки больше нуля
+        if data['cooking_time'] < 1:
+            return 'Меньше чем за минуту ничего не приготовить!!!'
+        # Проверка, что пришли ингредиенты
+        elif len(data['ingredients']) < 1:
+            return 'Укажите хотя бы один ингредиент в рецепте'
+        # Проверка, что пришли теги
+        elif len(data['tags']) is None:
+            return 'Укажите хотя бы один тег в рецепте'
+        # Проверка, что ингредиенты не повторяются
+        ingredients = self.initial_data.get('ingredients')
+        ingr_list = []
+        for ingr in ingredients:
+            if ingr['id'] in ingr_list:
+                return 'Нельзя указывать 2 одинаковых ингредиента'
+            ingr_list.append(ingr['id'])
+        # Проверка, что количество ингредиента больше нуля
+            if int(ingr['amount']) <= 0:
+                return f'Укажите кол-во для ингредиента больше 0'
+
         return data
 
-    def validate_ingredients(self, attrs):
-        if len(attrs) < 1:
-            raise serializers.ValidationError('Укажите хотя бы один '
-                                              'ингредиент в рецепте')
-
-        ingr_list = []
-        for data in attrs:
-            ingr_id = data['id']
-            if ingr_id in ingr_list:
-                raise serializers.ValidationError(
-                    'Нельзя указывать 2 одинаковых ингредиента')
-            ingr_list.append(ingr_id)
-            if int(data['amount']) <= 0:
-                raise serializers.ValidationError(
-                    f'Укажите кол-во для ингредиента id={ingr_id} больше 0'
-                )
-        return attrs
-
-    def create_tags(self, tags, recipes):
-        for tags in tags:
-            recipes.tags.add(tags)
+    def create_ingredients(self, recipes, ingredients):
+        IngredientsAmount.objects.bulk_create([
+            IngredientsAmount(
+                recipes=recipes,
+                ingredients=Ingredients.objects.get(id=i['id']),
+                amount=i['amount'],
+            ) for i in ingredients
+        ])
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-
         new_recipes = Recipes.objects.create(**validated_data)
-
-        for data in ingredients_data:
-            ingr = get_object_or_404(Ingredients, pk=data['id'])
-            amount = data['amount']
-            IngredientsAmount.objects.create(recipes=new_recipes,
-                                             ingredients=ingr,
-                                             amount=amount)
-        self.create_tags(recipes=new_recipes,
-                         tags=tags)
-
+        self.create_ingredients(new_recipes, ingredients_data)
+        new_recipes.tags.set(tags)
         return new_recipes
 
     def update(self, instance, validated_data):
@@ -135,16 +129,11 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
 
         instance.tags.clear()
         tags_data = validated_data.get('tags')
-        self.create_tags(tags=tags_data, recipes=instance)
+        instance.tags.set(tags_data)
 
         instance.ingredients.clear()
         ingredients_data = validated_data.pop('ingredients')
-        for data in ingredients_data:
-            ingr = get_object_or_404(Ingredients, pk=data['id'])
-            amount = data['amount']
-            IngredientsAmount.objects.create(recipes=instance,
-                                             ingredients=ingr,
-                                             amount=amount)
+        self.create_ingredients(instance, ingredients_data)
 
         instance.save()
         return instance
@@ -181,9 +170,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         recipes = data['recipes']
         if Favorite.objects.filter(
                 author=request.user, recipes=recipes).exists():
-            raise serializers.ValidationError({
-                'status': 'Рецепт уже есть в избранном!'
-            })
+            return 'Рецепт уже есть в избранном!'
         return data
 
     def to_representation(self, instance):
@@ -206,9 +193,7 @@ class BasketSerializer(serializers.ModelSerializer):
         if Basket.objects.filter(author=request.user,
                                  recipes=recipes
                                  ).exists():
-            raise serializers.ValidationError({
-                'status': 'Рецепт уже есть в списке покупок!'
-            })
+            return 'Рецепт уже есть в списке покупок!'
         return data
 
     def to_representation(self, instance):

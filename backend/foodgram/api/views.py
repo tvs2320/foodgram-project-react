@@ -1,5 +1,3 @@
-from django.db.models import Sum
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
@@ -8,13 +6,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import IngredientsFilter, RecipesFilter
-from .models import (Basket, Favorite, Ingredients, IngredientsAmount, Recipes,
-                     Tags)
+from recipes.models import (Basket, Favorite, Ingredients, Recipes, Tags)
 from .pagination import FoodgramPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (BasketSerializer, FavoriteSerializer,
                           IngredientsSerializer, RecipesCreateSerializer,
                           RecipesSerializer, TagsSerializer)
+from .services import report
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -101,25 +99,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         shopping_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @staticmethod
     @action(detail=False, permission_classes=[IsAuthenticated])
-    def download_shopping_cart(self, request):
-        """Метод отвечающий за выгрузку файла со списком ингридиентов
-        из рецептов, сохраненных в список покупок"""
-        basket = IngredientsAmount.objects.filter(
-            recipes__basket__author=request.user)
-        ingredients_list = basket.values('ingredients__name',
-                                         'ingredients__measurement_unit'
-                                         ).annotate(total=Sum('amount'))
-        file = ''
-        shopping_cart = list()
-        for ingredient in ingredients_list:
-            if ingredient["ingredients__name"] not in shopping_cart:
-                value = (f'{ingredient["ingredients__name"]} - '
-                         f'{ingredient["total"]} '
-                         f'{ingredient["ingredients__measurement_unit"]}')
-                shopping_cart.append(ingredient["ingredients__name"])
-                file += value + '\n'
-        filename = 'shopping_cart.txt'
-        response = HttpResponse(file, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-        return response
+    def download_shopping_cart(request):
+        data = report(request)
+        return data
