@@ -101,7 +101,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             ingr_list.append(ingr['id'])
         # Проверка, что количество ингредиента больше нуля
             if int(ingr['amount']) <= 0:
-                return f'Укажите кол-во для ингредиента больше 0'
+                return 'Укажите кол-во для ингредиента больше 0'
 
         return data
 

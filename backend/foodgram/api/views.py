@@ -102,5 +102,4 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @staticmethod
     @action(detail=False, permission_classes=[IsAuthenticated])
     def download_shopping_cart(request):
-        data = report(request)
-        return data
+        return report(request)
