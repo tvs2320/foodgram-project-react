@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='../infra/.env')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY') or get_random_secret_key()
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = ['84.201.162.140', '127.0.0.1']
 PAGE_COUNT = 6
 
 INSTALLED_APPS = [
