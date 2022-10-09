@@ -1,4 +1,4 @@
-#  Foodgram - продуктовый помощник
+#  Foodgram - продуктовый помощник.
 ![workflow](https://github.com/tvs2320/foodgram-project-react/workflows/foodgram_workflow/badge.svg)
 
 ## Описание проекта:
@@ -60,7 +60,7 @@ scp nginx.conf <username>@<host>:/home/<username>/nginx.conf
 
 ##### № 5. Cоздайте .env файл:
 На сервере создайте файл `nano .env` и заполните переменные окружения (или создайте этот файл локально и скопируйте файл по аналогии с предыдущим шагом):
-```bash
+```bash 
 SECRET_KEY=<SECRET_KEY>
 
 DB_ENGINE=django.db.backends.postgresql

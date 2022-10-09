@@ -8,9 +8,9 @@ services:
       - ./.env
 
   backend:
-    build:
-#    image: timaone2014/foodgram:latest
-      context: ../backend/foodgram
+#    build:
+    image: timaone2014/foodgram:latest
+#      context: ../backend/foodgram
     volumes:
       - ../static/:/app/static/
       - ./media/:/app/media/recipes/
@@ -21,10 +21,10 @@ services:
     restart: always
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-#    image: timaone2014/foodgram_frontend:v1
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
+    image: timaone2014/foodgram_frontend:v1
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
