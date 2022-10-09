@@ -1,4 +1,4 @@
-#  Foodgram - продуктовый помощник
+#  Foodgram - продуктовый помощник.
 ![workflow](https://github.com/tvs2320/foodgram-project-react/workflows/foodgram_workflow/badge.svg)
 
 ## Описание проекта:
