@@ -1,19 +1,11 @@
 from django.contrib import admin
-from django.forms.models import BaseInlineFormSet
+
 from .models import (Basket, Favorite, Ingredients, IngredientsAmount, Recipes,
                      Tags)
 
 
-# class IngredientsAmountInlineFormset(BaseInlineFormSet):
-#     def clean_ingredients(self):
-#         if len(self.cleaned_data['ingredients']) < 1:
-#             return 'Укажите хотя бы один ингредиент в рецепте'
-#         return self.cleaned_data['ingredients']
-
-
 class IngredientsAmountInline(admin.TabularInline):
     model = IngredientsAmount
-    # formset = IngredientsAmountInlineFormset
     min_num = 1
     extra = 0
 
@@ -44,7 +36,10 @@ class BasketAdmin(admin.ModelAdmin):
 class RecipesAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'favorites_count',)
     list_filter = ('name', 'author', 'tags',)
-    search_fields = ('name', 'author', 'tags',)
+    search_fields = ('name',
+                     'author__username',
+                     'tags__name',
+                     )
     empty_value_display = '-пусто-'
     inlines = (IngredientsAmountInline,)
     exclude = ['ingredients']

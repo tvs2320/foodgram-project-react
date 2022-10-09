@@ -1,9 +1,9 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from users.serializers import CustomUserSerializer
 
 from recipes.models import (Basket, Favorite, Ingredients, IngredientsAmount,
                             Recipes, Tags)
+from users.serializers import CustomUserSerializer
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -13,8 +13,12 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 
 class IngredientWriteSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
     amount = serializers.IntegerField()
+
+    class Meta:
+        model = IngredientsAmount
+        fields = ('id', 'amount')
 
 
 class IngredientsAmountSerializer(serializers.ModelSerializer):
@@ -22,7 +26,6 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredients.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredients.measurement_unit')
-    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientsAmount
@@ -106,7 +109,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
         IngredientsAmount.objects.bulk_create([
             IngredientsAmount(
                 recipes=recipes,
-                ingredients=Ingredients.objects.get(id=i['id']),
+                ingredients=i['id'],
                 amount=i['amount'],
             ) for i in ingredients
         ])

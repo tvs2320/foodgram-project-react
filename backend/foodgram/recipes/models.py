@@ -81,8 +81,8 @@ class IngredientsAmount(models.Model):
                                 verbose_name='Рецепты', )
     amount = models.IntegerField()
 
-    def __str__(self):
-        return self.amount
+    # def __str__(self):
+    #     return self.ingredients
 
     class Meta:
         constraints = [
