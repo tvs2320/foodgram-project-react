@@ -1,12 +1,10 @@
 name: foodgram workflow
 
-on:
-  push:
-    paths-ignore:
-      - '**/README.md'
+on: [push]
 
 jobs:
   tests:
+    name: tests start
     runs-on: ubuntu-latest
 
     steps:
