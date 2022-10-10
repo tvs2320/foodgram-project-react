@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -85,23 +86,28 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         # Проверка, что время готовки больше нуля
         if data['cooking_time'] < 1:
-            return 'Меньше чем за минуту ничего не приготовить!!!'
+            raise ValidationError(
+                'Меньше чем за минуту ничего не приготовить!!!')
         # Проверка, что пришли ингредиенты
-        elif len(data['ingredients']) < 1:
-            return 'Укажите хотя бы один ингредиент в рецепте'
+        if len(data['ingredients']) < 1:
+            raise ValidationError(
+                'Укажите хотя бы один ингредиент в рецепте')
         # Проверка, что пришли теги
-        elif len(data['tags']) is None:
-            return 'Укажите хотя бы один тег в рецепте'
+        if len(data['tags']) is None:
+            raise ValidationError(
+                'Укажите хотя бы один тег в рецепте')
         # Проверка, что ингредиенты не повторяются
         ingredients = self.initial_data.get('ingredients')
         ingr_list = []
         for ingr in ingredients:
             if ingr['id'] in ingr_list:
-                return 'Нельзя указывать 2 одинаковых ингредиента'
+                raise ValidationError(
+                    'Нельзя указывать 2 одинаковых ингредиента')
             ingr_list.append(ingr['id'])
         # Проверка, что количество ингредиента больше нуля
             if int(ingr['amount']) <= 0:
-                return 'Укажите кол-во для ингредиента больше 0'
+                raise ValidationError(
+                    'Укажите кол-во для ингредиента больше 0')
 
         return data
 
@@ -173,7 +179,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         recipes = data['recipes']
         if Favorite.objects.filter(
                 author=request.user, recipes=recipes).exists():
-            return 'Рецепт уже есть в избранном!'
+            raise ValidationError('Рецепт уже есть в избранном!')
         return data
 
     def to_representation(self, instance):
@@ -196,7 +202,7 @@ class BasketSerializer(serializers.ModelSerializer):
         if Basket.objects.filter(author=request.user,
                                  recipes=recipes
                                  ).exists():
-            return 'Рецепт уже есть в списке покупок!'
+            raise ValidationError('Рецепт уже есть в списке покупок!')
         return data
 
     def to_representation(self, instance):
