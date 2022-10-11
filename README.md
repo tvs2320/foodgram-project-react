@@ -108,7 +108,7 @@ sudo docker-compose exec backend python manage.py migrate --noinput
 ```
 ###### Создать суперпользователя Django:
 ```bash
-
+sudo docker-compose exec backend python manage.py createsuperuser
 ```
 ###### Подгрузить статику
 ```bash
@@ -116,7 +116,7 @@ sudo docker-compose exec backend python manage.py collectstatic --noinput
 ```
 ###### Заполнить базу данных:
 ```bash
-sudo docker-compose exec backend python manage.py loaddata fixtures/ingredients.json
+sudo docker-compose exec backend python manage.py loaddata fixtures/dump.json
 ```
 
 ##### № 8. Проект запущен:
