@@ -6,9 +6,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='../infra/.env')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY') or get_random_secret_key()
-
-DEBUG = True
-
+DEBUG = False
 ALLOWED_HOSTS = ['84.201.162.140', '127.0.0.1', 'backend']
 PAGE_COUNT = 6
 
@@ -65,12 +63,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
