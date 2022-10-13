@@ -8,8 +8,6 @@ services:
       - ./.env
   backend:
     image: timaone2014/foodgram:latest
-#    ports:
-#      - "8000:8000"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
