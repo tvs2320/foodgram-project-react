@@ -1,5 +1,10 @@
 #  Foodgram - продуктовый помощник
 ![foodgram_workflow](https://github.com/tvs2320/foodgram-project-react/actions/workflows/foodgram_workflow/badge.svg)
+## Доступ к проекту:
+Проект доступен по адресу: http://84.201.162.140/
+Логин администратора: admin@admin.com
+Пароль: admin
+Имя пользователя: admin
 
 ## Описание проекта:
 Сервис публикации рецептов с подписками на любимых авторов, возможностью добавлять понравившиеся рецепты в список "Избранное", 
