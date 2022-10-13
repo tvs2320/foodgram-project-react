@@ -53,7 +53,8 @@ class CustomUserSerializer(UserSerializer):
         if request is None or request.user.is_anonymous:
             return False
         # author = CustomUser.objects.get(id=obj.id)
-        return Follow.objects.filter(follower=request.user, author=obj).exists()
+        return Follow.objects.filter(
+            follower=request.user, author=obj).exists()
 
 
 class FollowSerializer(serializers.ModelSerializer):
