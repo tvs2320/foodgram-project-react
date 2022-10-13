@@ -48,9 +48,12 @@ class CustomUserSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         """Метод, указывающий на наличие/отсутствие подписки на
          пользователя из запроса"""
-        follower = self.context['request'].user
-        author = CustomUser.objects.get(id=obj.id)
-        return Follow.objects.filter(follower=follower, author=author).exists()
+        # follower = self.context['request'].user
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        # author = CustomUser.objects.get(id=obj.id)
+        return Follow.objects.filter(follower=request.user, author=obj).exists()
 
 
 class FollowSerializer(serializers.ModelSerializer):
