@@ -8,8 +8,8 @@ services:
       - ./.env
   backend:
     image: timaone2014/foodgram:latest
-    ports:
-      - "8000:8000"
+#    ports:
+#      - "8000:8000"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
@@ -34,7 +34,6 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
-      - ./error_log/:/error_log:rw
 
     depends_on:
       - backend

@@ -112,7 +112,7 @@ sudo docker-compose exec backend python manage.py createsuperuser
 ```
 ###### Подгрузить статику
 ```bash
-sudo docker-compose exec backend python manage.py collectstatic --noinput 
+ 
 ```
 ###### Заполнить базу данных:
 ```bash
